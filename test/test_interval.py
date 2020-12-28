@@ -1,7 +1,7 @@
 import pytest
 
 from practice_mate.theory.fundamentals import SemiTone
-from practice_mate.theory.intervals import Interval, Quality, Quantity
+from practice_mate.theory.interval import Interval, Quality, Quantity
 
 
 def test_invalid_intervals():
