@@ -1,5 +1,5 @@
 from enum import Enum, unique
-from typing import Iterator
+from typing import Generator
 
 
 __all__ = ["SemiTone", "NoteName", "NoteIndex", "Modifier", "Spn", "cycle"]
@@ -50,7 +50,7 @@ _NOTE_NAMES_LIST = [i for i in NoteName]
 _NOTE_NAME_TO_LIST_INDEX = {n: i for i, n in enumerate(NoteName)}
 
 
-def cycle(root: NoteName, inclusive_start: bool = True) -> Iterator[NoteName]:
+def cycle(root: NoteName, inclusive_start: bool = True) -> Generator[NoteName, None, None]:
     index = _NOTE_NAME_TO_LIST_INDEX[root]
     if not inclusive_start:
         index += 1

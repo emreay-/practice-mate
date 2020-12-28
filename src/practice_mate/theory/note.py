@@ -101,13 +101,17 @@ class Note:
     def index(self) -> NoteIndex:
         return self._index
 
-    def apply(self, interval: Interval) -> "Note":
-        new_base = get_note_name_for_quantity(base_note=self._base, quantity=interval.quantity)
+    def apply(self, interval: Interval, try_quantitative_naming: bool = True) -> "Note":
         try:
             new_index = NoteIndex(self._index + interval.semitones)
         except ValueError as e:
             raise NoteRangeException(e)
+
+        if not try_quantitative_naming:
+            return determine_notes_from_index(new_index)[0]
+
         try:
+            new_base = get_note_name_for_quantity(base_note=self._base, quantity=interval.quantity)
             return determine_related_note(new_base, new_index)
         except CannotDetermineRelatedNoteError:
             return determine_notes_from_index(new_index)[0]
