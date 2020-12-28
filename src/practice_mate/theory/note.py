@@ -6,7 +6,8 @@ from typing import NewType, Optional
 __all__ = ["SemiTone", "NoteName", "Modifier", "Note"]
 
 
-SemiTone = NewType("SemiTone", int)
+class SemiTone(int):
+    pass
 
 
 class NoteName(str, Enum):
@@ -52,7 +53,7 @@ def determine_note_semitone_index(base: NoteName, modifier: Optional[Modifier] =
     i = deepcopy(NOTENAME_TO_SEMITONE_INDEX[base])
     if modifier:
         i += MODIFIER_TO_SEMITONE_OFFSET[modifier]
-    return i % 12
+    return i % SemiTone(12)
 
 
 class Note:
