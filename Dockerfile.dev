@@ -1,0 +1,5 @@
+ARG IMAGE=eay/practice-mate:latest
+FROM $IMAGE
+
+WORKDIR /practice-mate
+RUN pip3 install -r requirements_dev.txt
