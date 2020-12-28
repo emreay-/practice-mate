@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 from practice_mate.theory.fundamentals import *
 from practice_mate.theory.interval import Interval, get_note_name_for_quantity
 
-__all__ = ["Note"]
+__all__ = ["Note", "CannotDetermineRelatedNoteError"]
 
 
 NOTENAME_TO_BASE_INDEX = {
