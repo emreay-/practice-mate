@@ -1,4 +1,14 @@
-from practice_mate.theory.note import NoteName, Modifier, Note, SemiTone
+import pytest
+from practice_mate.theory.note import NoteName, Modifier, Note, SemiTone, ScientificPitchNotation
+
+
+def test_spn():
+    for i in range(-1, 11, 1):
+        i == int(ScientificPitchNotation(i))
+
+    for i in range(11, 21, 1):
+        with pytest.raises(ValueError):
+            ScientificPitchNotation(i)
 
 
 def test_repr():

@@ -3,11 +3,20 @@ from copy import deepcopy
 from typing import NewType, Optional
 
 
-__all__ = ["SemiTone", "NoteName", "Modifier", "Note"]
+__all__ = ["SemiTone", "NoteName", "Modifier", "ScientificPitchNotation", "Note"]
 
 
 class SemiTone(int):
     pass
+
+
+class ScientificPitchNotation(int):
+    # See https://en.wikipedia.org/wiki/Scientific_pitch_notation
+    def __new__(cls, *args, **kwargs):
+        if -1 <= args[0] <= 10:
+            return super().__new__(cls, *args, **kwargs)
+        raise ValueError(f"Invalid scientific pitch notation {args[0]}")
+
 
 
 class NoteName(str, Enum):
