@@ -1,5 +1,7 @@
 import pytest
-from practice_mate.theory.note import NoteName, Modifier, Note, NoteIndex, SemiTone, Spn
+from practice_mate.theory.fundamentals import *
+from practice_mate.theory.interval import *
+from practice_mate.theory.note import Note, determine_notes_from_index
 
 
 def test_spn():
@@ -110,3 +112,77 @@ def test_inequality():
     assert Note(NoteName.c, pitch=Spn(2)) < Note(NoteName.c, pitch=Spn(3))
     assert Note(NoteName.c, pitch=Spn(2)) <= Note(NoteName.c, pitch=Spn(3))
     assert Note(NoteName.c, pitch=Spn(2)) <= Note(NoteName.c, pitch=Spn(2))
+
+
+def _get_notes_for_pitch(pitch):
+    return [
+        (Note(NoteName.c, pitch=pitch),),
+        (Note(NoteName.c, pitch=pitch, modifier=Modifier.sharp), Note(NoteName.d, pitch=pitch, modifier=Modifier.flat),),
+        (Note(NoteName.d, pitch=pitch),),
+        (Note(NoteName.d, pitch=pitch, modifier=Modifier.sharp), Note(NoteName.e, pitch=pitch, modifier=Modifier.flat),),
+        (Note(NoteName.e, pitch=pitch),),
+        (Note(NoteName.f, pitch=pitch),),
+        (Note(NoteName.f, pitch=pitch, modifier=Modifier.sharp), Note(NoteName.g, pitch=pitch, modifier=Modifier.flat),),
+        (Note(NoteName.g, pitch=pitch),),
+        (Note(NoteName.g, pitch=pitch, modifier=Modifier.sharp), Note(NoteName.a, pitch=pitch, modifier=Modifier.flat),),
+        (Note(NoteName.a, pitch=pitch),),
+        (Note(NoteName.a, pitch=pitch, modifier=Modifier.sharp), Note(NoteName.b, pitch=pitch, modifier=Modifier.flat),),
+        (Note(NoteName.b, pitch=pitch),),
+    ]
+
+
+def test_determine_notes_from_index():
+    data = []
+    for pitch in range(-1, 11, 1):
+        data += _get_notes_for_pitch(Spn(pitch))
+
+    for i in range(0, 144):
+        assert data[i] == determine_notes_from_index(i)
+
+
+def test_from_str():
+    assert Note.from_str("E0") == Note(NoteName.e, pitch=Spn(0), modifier=None)
+    assert Note.from_str("E#0") == Note(NoteName.e, pitch=Spn(0), modifier=Modifier.sharp)
+    assert Note.from_str("E##0") == Note(NoteName.e, pitch=Spn(0), modifier=Modifier.double_sharp)
+    assert Note.from_str("Eb0") == Note(NoteName.e, pitch=Spn(0), modifier=Modifier.flat)
+    assert Note.from_str("Ebb0") == Note(NoteName.e, pitch=Spn(0), modifier=Modifier.double_flat)
+
+
+def test_apply():
+    doubly_augmented_second = Interval.from_str("Doubly augmented 2nd")
+    perfect_fourth = Interval.from_str("Perfect 4th")
+    perfect_fifth = Interval.from_str("Perfect 5th")
+    minor_sixth = Interval.from_str("Minor 6th")
+    diminished_sixth = Interval.from_str("Diminished 6th")
+    doubly_diminished_sixth = Interval.from_str("Doubly diminished 6th")
+
+    assert Note.from_str("A4").apply(doubly_augmented_second) == Note.from_str("B##4")
+
+    assert Note.from_str("C4").apply(perfect_fifth) == Note.from_str("G4")
+    assert Note.from_str("G4").apply(perfect_fifth) == Note.from_str("D5")
+    assert Note.from_str("D5").apply(perfect_fifth) == Note.from_str("A5")
+    assert Note.from_str("A5").apply(perfect_fifth) == Note.from_str("E6")
+    assert Note.from_str("E6").apply(perfect_fifth) == Note.from_str("B6")
+    assert Note.from_str("B6").apply(perfect_fifth) == Note.from_str("F#7")
+    assert Note.from_str("F#7").apply(perfect_fifth) == Note.from_str("Db8")
+    assert Note.from_str("Db8").apply(perfect_fifth) == Note.from_str("Ab8")
+    assert Note.from_str("Ab8").apply(perfect_fifth) == Note.from_str("Eb9")
+    assert Note.from_str("Eb9").apply(perfect_fifth) == Note.from_str("Bb9")
+    assert Note.from_str("Bb9").apply(perfect_fifth) == Note.from_str("F10")
+    assert Note.from_str("F9").apply(perfect_fifth) == Note.from_str("C10")
+
+    assert Note.from_str("G2").apply(perfect_fourth) == Note.from_str("C3")
+    assert Note.from_str("D2").apply(perfect_fourth) == Note.from_str("G2")
+    assert Note.from_str("A2").apply(perfect_fourth) == Note.from_str("D3")
+    assert Note.from_str("E2").apply(perfect_fourth) == Note.from_str("A2")
+    assert Note.from_str("B2").apply(perfect_fourth) == Note.from_str("E3")
+    assert Note.from_str("Db2").apply(perfect_fourth) == Note.from_str("F#2")
+    assert Note.from_str("Ab3").apply(perfect_fourth) == Note.from_str("Db4")
+    assert Note.from_str("Eb3").apply(perfect_fourth) == Note.from_str("Ab3")
+    assert Note.from_str("Bb3").apply(perfect_fourth) == Note.from_str("Eb4")
+    assert Note.from_str("F4").apply(perfect_fourth) == Note.from_str("Bb4")
+    assert Note.from_str("C4").apply(perfect_fourth) == Note.from_str("F4")
+
+    assert Note.from_str("C4").apply(minor_sixth) == Note.from_str("Ab4")
+    assert Note.from_str("C4").apply(diminished_sixth) == Note.from_str("Abb4")
+    assert Note.from_str("C4").apply(doubly_diminished_sixth) == Note.from_str("Abbb4")

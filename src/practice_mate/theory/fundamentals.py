@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, unique
 from typing import Iterator
 
 
@@ -24,6 +24,7 @@ class NoteIndex(int):
         raise ValueError(f"Invalid note index {args[0]}")
 
 
+@unique
 class NoteName(str, Enum):
     c = "C"
     d = "D"
@@ -34,12 +35,15 @@ class NoteName(str, Enum):
     b = "B"
 
 
+@unique
 class Modifier(str, Enum):
     flat = "♭"
     sharp = "♯"
     natural = "♮"
     double_flat = "♭♭"
     double_sharp = "♯♯"
+    triple_flat = "♭♭♭"
+    triple_sharp = "♯♯♯"
 
 
 _NOTE_NAMES_LIST = [i for i in NoteName]

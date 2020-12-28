@@ -1,8 +1,8 @@
 from enum import Enum
 
-from practice_mate.theory.fundamentals import SemiTone
+from practice_mate.theory.fundamentals import SemiTone, NoteName, cycle
 
-__all__ = ["Quality", "Quantity", "Interval"]
+__all__ = ["Quality", "Quantity", "Interval", "get_note_name_for_quantity"]
 
 
 class Quality(str, Enum):
@@ -36,6 +36,23 @@ QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE = {
 }
 
 
+def get_note_name_for_quantity(base_note: NoteName, quantity: Quantity) -> NoteName:
+    degree = {
+        Quantity.second: 2,
+        Quantity.third: 3,
+        Quantity.fourth: 4,
+        Quantity.fifth: 5,
+        Quantity.sixth: 6,
+        Quantity.seventh: 7,
+        Quantity.eighth: 8,
+    }.get(quantity)
+
+    iterator = cycle(root=base_note)
+    for _ in range(degree - 1):
+        next(iterator)
+    return next(iterator)
+
+
 class Interval:
     def __init__(self, quality: Quality, quantity: Quantity):
         self._quality = quality
@@ -44,6 +61,22 @@ class Interval:
         self._validate()
         self._semitones = self._determine_semitones()
     
+    @staticmethod
+    def from_str(value: str) -> "Interval":
+        value = value.strip()
+        try:
+            return Interval(Quality(value[:-4]), Quantity(value[-3:]))
+        except Exception:
+            raise ValueError(f"Cannot create Interval from {value}")
+
+    @property
+    def quality(self) -> Quality:
+        return self._quality
+
+    @property
+    def quantity(self) -> Quantity:
+        return self._quantity
+
     @property
     def semitones(self) -> SemiTone:
         return self._semitones
@@ -87,3 +120,6 @@ class Interval:
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} {str(self)}>"
+
+    def __eq__(self, other: "Interval") -> bool:
+        return self.quality is other.quality and self.quantity is other.quantity
