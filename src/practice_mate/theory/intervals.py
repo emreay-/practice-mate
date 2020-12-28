@@ -82,6 +82,8 @@ class Interval:
         if self._quality is Quality.doubly_augmented:
             return semitones + SemiTone(2)
     
+    def __str__(self) -> str:
+        return f"{self._quality} {self._quantity}"
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} {self._quality} {self._quantity}>"
+        return f"<{self.__class__.__name__} {str(self)}>"
