@@ -1,18 +1,18 @@
 import pytest
-from practice_mate.theory.note import NoteName, Modifier, Note, SemiTone, ScientificPitchNotation
+from practice_mate.theory.note import NoteName, Modifier, Note, NoteIndex, SemiTone, Spn
 
 
 def test_spn():
     for i in range(-1, 11, 1):
-        i == int(ScientificPitchNotation(i))
+        i == int(Spn(i))
 
     for i in range(11, 21, 1):
         with pytest.raises(ValueError):
-            ScientificPitchNotation(i)
+            Spn(i)
 
 
 def test_repr():
-    pitch = ScientificPitchNotation(2)
+    pitch = Spn(2)
     for note_name in NoteName:
         for modifier in [None, Modifier.sharp, Modifier.flat, Modifier.double_sharp, Modifier.double_flat]:
             expected_repr = note_name.value
@@ -20,60 +20,65 @@ def test_repr():
                 expected_repr += modifier.value
             expected_repr = f"<Note {expected_repr}{pitch}>"
 
-            assert expected_repr == repr(Note(note_name, modifier, pitch))
+            assert expected_repr == repr(Note(note_name, pitch, modifier))
 
 
-def test_semitone_indices():
-    data = {
-        (NoteName.c, None): SemiTone(0),
-        (NoteName.c, Modifier.natural): SemiTone(0),
-        (NoteName.c, Modifier.sharp): SemiTone(1),
-        (NoteName.c, Modifier.double_sharp): SemiTone(2),
-        (NoteName.c, Modifier.flat): SemiTone(11),
-        (NoteName.c, Modifier.double_flat): SemiTone(10),
-        
-        (NoteName.d, None): SemiTone(2),
-        (NoteName.d, Modifier.natural): SemiTone(2),
-        (NoteName.d, Modifier.sharp): SemiTone(3),
-        (NoteName.d, Modifier.double_sharp): SemiTone(4),
-        (NoteName.d, Modifier.flat): SemiTone(1),
-        (NoteName.d, Modifier.double_flat): SemiTone(0),
+def test_indices():
+    assert Note(NoteName.c, pitch=Spn(-1), modifier=None).index == NoteIndex(0)
+    assert Note(NoteName.c, pitch=Spn(-1), modifier=Modifier.natural).index == NoteIndex(0)
+    assert Note(NoteName.c, pitch=Spn(-1), modifier=Modifier.sharp).index == NoteIndex(1)
+    assert Note(NoteName.c, pitch=Spn(-1), modifier=Modifier.double_sharp).index == NoteIndex(2)
 
-        (NoteName.e, None): SemiTone(4),
-        (NoteName.e, Modifier.natural): SemiTone(4),
-        (NoteName.e, Modifier.sharp): SemiTone(5),
-        (NoteName.e, Modifier.double_sharp): SemiTone(6),
-        (NoteName.e, Modifier.flat): SemiTone(3),
-        (NoteName.e, Modifier.double_flat): SemiTone(2),
+    assert Note(NoteName.d, pitch=Spn(-1), modifier=None).index == NoteIndex(2)
+    assert Note(NoteName.d, pitch=Spn(-1), modifier=Modifier.natural).index == NoteIndex(2)
+    assert Note(NoteName.d, pitch=Spn(-1), modifier=Modifier.sharp).index == NoteIndex(3)
+    assert Note(NoteName.d, pitch=Spn(-1), modifier=Modifier.double_sharp).index == NoteIndex(4)
+    assert Note(NoteName.d, pitch=Spn(-1), modifier=Modifier.flat).index == NoteIndex(1)
+    assert Note(NoteName.d, pitch=Spn(-1), modifier=Modifier.double_flat).index == NoteIndex(0)
 
-        (NoteName.f, None): SemiTone(5),
-        (NoteName.f, Modifier.natural): SemiTone(5),
-        (NoteName.f, Modifier.sharp): SemiTone(6),
-        (NoteName.f, Modifier.double_sharp): SemiTone(7),
-        (NoteName.f, Modifier.flat): SemiTone(4),
-        (NoteName.f, Modifier.double_flat): SemiTone(3),
+    assert Note(NoteName.e, pitch=Spn(-1), modifier=None).index == NoteIndex(4)
+    assert Note(NoteName.e, pitch=Spn(-1), modifier=Modifier.natural).index == NoteIndex(4)
+    assert Note(NoteName.e, pitch=Spn(-1), modifier=Modifier.sharp).index == NoteIndex(5)
+    assert Note(NoteName.e, pitch=Spn(-1), modifier=Modifier.double_sharp).index == NoteIndex(6)
+    assert Note(NoteName.e, pitch=Spn(-1), modifier=Modifier.flat).index == NoteIndex(3)
+    assert Note(NoteName.e, pitch=Spn(-1), modifier=Modifier.double_flat).index == NoteIndex(2)
 
-        (NoteName.g, None): SemiTone(7),
-        (NoteName.g, Modifier.natural): SemiTone(7),
-        (NoteName.g, Modifier.sharp): SemiTone(8),
-        (NoteName.g, Modifier.double_sharp): SemiTone(9),
-        (NoteName.g, Modifier.flat): SemiTone(6),
-        (NoteName.g, Modifier.double_flat): SemiTone(5),
+    assert Note(NoteName.f, pitch=Spn(-1), modifier=None).index == NoteIndex(5)
+    assert Note(NoteName.f, pitch=Spn(-1), modifier=Modifier.natural).index == NoteIndex(5)
+    assert Note(NoteName.f, pitch=Spn(-1), modifier=Modifier.sharp).index == NoteIndex(6)
+    assert Note(NoteName.f, pitch=Spn(-1), modifier=Modifier.double_sharp).index == NoteIndex(7)
+    assert Note(NoteName.f, pitch=Spn(-1), modifier=Modifier.flat).index == NoteIndex(4)
+    assert Note(NoteName.f, pitch=Spn(-1), modifier=Modifier.double_flat).index == NoteIndex(3)
 
-        (NoteName.a, None): SemiTone(9),
-        (NoteName.a, Modifier.natural): SemiTone(9),
-        (NoteName.a, Modifier.sharp): SemiTone(10),
-        (NoteName.a, Modifier.double_sharp): SemiTone(11),
-        (NoteName.a, Modifier.flat): SemiTone(8),
-        (NoteName.a, Modifier.double_flat): SemiTone(7),
+    assert Note(NoteName.g, pitch=Spn(-1), modifier=None).index == NoteIndex(7)
+    assert Note(NoteName.g, pitch=Spn(-1), modifier=Modifier.natural).index == NoteIndex(7)
+    assert Note(NoteName.g, pitch=Spn(-1), modifier=Modifier.sharp).index == NoteIndex(8)
+    assert Note(NoteName.g, pitch=Spn(-1), modifier=Modifier.double_sharp).index == NoteIndex(9)
+    assert Note(NoteName.g, pitch=Spn(-1), modifier=Modifier.flat).index == NoteIndex(6)
+    assert Note(NoteName.g, pitch=Spn(-1), modifier=Modifier.double_flat).index == NoteIndex(5)
 
-        (NoteName.b, None): SemiTone(11),
-        (NoteName.b, Modifier.natural): SemiTone(11),
-        (NoteName.b, Modifier.sharp): SemiTone(0),
-        (NoteName.b, Modifier.double_sharp): SemiTone(1),
-        (NoteName.b, Modifier.flat): SemiTone(10),
-        (NoteName.b, Modifier.double_flat): SemiTone(9),
-    }
+    assert Note(NoteName.a, pitch=Spn(-1), modifier=None).index == NoteIndex(9)
+    assert Note(NoteName.a, pitch=Spn(-1), modifier=Modifier.natural).index == NoteIndex(9)
+    assert Note(NoteName.a, pitch=Spn(-1), modifier=Modifier.sharp).index == NoteIndex(10)
+    assert Note(NoteName.a, pitch=Spn(-1), modifier=Modifier.double_sharp).index == NoteIndex(11)
+    assert Note(NoteName.a, pitch=Spn(-1), modifier=Modifier.flat).index == NoteIndex(8)
+    assert Note(NoteName.a, pitch=Spn(-1), modifier=Modifier.double_flat).index == NoteIndex(7)
 
-    for (note_name, modifier), expected_semitone_index in data.items():
-        assert expected_semitone_index == Note(note_name, modifier)._semitone_index
+    assert Note(NoteName.b, pitch=Spn(-1), modifier=None).index == NoteIndex(11)
+    assert Note(NoteName.b, pitch=Spn(-1), modifier=Modifier.natural).index == NoteIndex(11)
+    assert Note(NoteName.b, pitch=Spn(-1), modifier=Modifier.sharp).index == NoteIndex(12)
+    assert Note(NoteName.b, pitch=Spn(-1), modifier=Modifier.double_sharp).index == NoteIndex(13)
+
+
+def test_equality():
+    assert Note(NoteName.c) == Note(NoteName.c)
+    assert Note(NoteName.c, pitch=Spn(4), modifier=Modifier.double_sharp) == Note(NoteName.d, pitch=Spn(4),)
+    assert Note(NoteName.c, pitch=Spn(4), modifier=Modifier.double_flat) == Note(NoteName.b, pitch=Spn(3), modifier=Modifier.flat)
+    assert Note(NoteName.e, pitch=Spn(4), modifier=Modifier.sharp) == Note(NoteName.f, pitch=Spn(4))
+    assert Note(NoteName.f, pitch=Spn(4), modifier=Modifier.flat) == Note(NoteName.e, pitch=Spn(4))
+
+    assert not Note(NoteName.c, pitch=Spn(4)) == Note(NoteName.c, pitch=Spn(5))
+    assert not Note(NoteName.c, pitch=Spn(4), modifier=Modifier.double_sharp) == Note(NoteName.c, pitch=Spn(4))
+    assert not Note(NoteName.c, pitch=Spn(4), modifier=Modifier.double_flat) == Note(NoteName.c, pitch=Spn(4))
+    assert not Note(NoteName.c, pitch=Spn(4), modifier=Modifier.sharp) == Note(NoteName.c, pitch=Spn(4))
+    assert not Note(NoteName.c, pitch=Spn(4), modifier=Modifier.flat) == Note(NoteName.c, pitch=Spn(4))
