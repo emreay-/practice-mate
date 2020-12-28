@@ -1,7 +1,8 @@
 from enum import Enum
+from typing import Iterator
 
 
-__all__ = ["SemiTone", "NoteName", "NoteIndex", "Modifier", "Spn"]
+__all__ = ["SemiTone", "NoteName", "NoteIndex", "Modifier", "Spn", "cycle"]
 
 
 class SemiTone(int):
@@ -39,3 +40,19 @@ class Modifier(str, Enum):
     natural = "♮"
     double_flat = "♭♭"
     double_sharp = "♯♯"
+
+
+_NOTE_NAMES_LIST = [i for i in NoteName]
+_NOTE_NAME_TO_LIST_INDEX = {n: i for i, n in enumerate(NoteName)}
+
+
+def cycle(root: NoteName, inclusive_start: bool = True) -> Iterator[NoteName]:
+    index = _NOTE_NAME_TO_LIST_INDEX[root]
+    if not inclusive_start:
+        index += 1
+        index %= len(NoteName)
+
+    while True:
+        yield _NOTE_NAMES_LIST[index]
+        index += 1
+        index %= len(NoteName)
