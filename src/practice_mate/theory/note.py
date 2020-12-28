@@ -31,7 +31,6 @@ class NoteName(str, Enum):
 
 
 class Modifier(str, Enum):
-    none = ""
     natural = "♮"
     flat = "♭"
     double_flat = "♭♭"
@@ -50,7 +49,6 @@ NOTENAME_TO_SEMITONE_INDEX = {
 }
 
 MODIFIER_TO_SEMITONE_OFFSET = {
-    Modifier.none: SemiTone(0),
     Modifier.natural: SemiTone(0),
     Modifier.flat: SemiTone(-1),
     Modifier.double_flat: SemiTone(-2),
@@ -66,11 +64,15 @@ def determine_note_semitone_index(base: NoteName, modifier: Optional[Modifier] =
 
 
 class Note:
-    def __init__(self, base: NoteName, modifier: Optional[Modifier] = None):
+    def __init__(self, base: NoteName,
+                 modifier: Optional[Modifier] = None,
+                 pitch: Optional[ScientificPitchNotation] = ScientificPitchNotation(4)
+                ):
         self._base = base
-        self._modifier = modifier if modifier else Modifier.none
+        self._modifier = modifier
+        self._pitch = pitch
         self._semitone_index = determine_note_semitone_index(self._base, self._modifier)
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} {self._base}{self._modifier}>"
-    
+        return f"<{self.__class__.__name__} {self._base}"\
+            f"{self._modifier.value if self._modifier else ''}{self._pitch}>"
