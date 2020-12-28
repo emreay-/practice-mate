@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 from practice_mate.theory.fundamentals import *
 from practice_mate.theory.interval import Interval, get_note_name_for_quantity
 
-__all__ = ["Note", "CannotDetermineRelatedNoteError"]
+__all__ = ["Note", "CannotDetermineRelatedNoteError", "NoteRangeException"]
 
 
 NOTENAME_TO_BASE_INDEX = {
@@ -48,6 +48,10 @@ SEMITONE_OFFSET_TO_MODIFIER = {
 
 FLATTENING_MODIFIERS = {Modifier.flat, Modifier.double_flat, Modifier.triple_flat}
 SHARPENING_MODIFIERS = {Modifier.sharp, Modifier.double_sharp, Modifier.triple_sharp}
+
+
+class NoteRangeException(Exception):
+    pass
 
 
 class Note:
@@ -99,8 +103,14 @@ class Note:
 
     def apply(self, interval: Interval) -> "Note":
         new_base = get_note_name_for_quantity(base_note=self._base, quantity=interval.quantity)
-        new_index = self._index + interval.semitones
-        return determine_related_note(new_base, new_index)
+        try:
+            new_index = NoteIndex(self._index + interval.semitones)
+        except ValueError as e:
+            raise NoteRangeException(e)
+        try:
+            return determine_related_note(new_base, new_index)
+        except CannotDetermineRelatedNoteError:
+            return determine_notes_from_index(new_index)[0]
 
     def __ge__(self, other: "Note") -> bool:
         return self.index >= other.index
@@ -120,9 +130,9 @@ class Note:
 
 def determine_note_index(base: NoteName, pitch: Spn, modifier: Optional[Modifier] = None) -> NoteIndex:
     if pitch == Spn(-1) and base is NoteName.c and modifier in FLATTENING_MODIFIERS:
-        raise ValueError(f"Cannot go flatter than C-1")
+        raise NoteRangeException(f"Cannot go flatter than C-1")
     if pitch == Spn(10) and base is NoteName.b and modifier in SHARPENING_MODIFIERS:
-        raise ValueError(f"Cannot go sharper than B10")
+        raise NoteRangeException(f"Cannot go sharper than B10")
 
     i = deepcopy(NOTENAME_TO_BASE_INDEX[base])
     i += (pitch + Spn(1)) * SemiTone(12)

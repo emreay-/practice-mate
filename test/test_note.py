@@ -1,7 +1,7 @@
 import pytest
 from practice_mate.theory.fundamentals import *
 from practice_mate.theory.interval import *
-from practice_mate.theory.note import Note, determine_notes_from_index
+from practice_mate.theory.note import Note, determine_notes_from_index, NoteRangeException
 
 
 def test_spn():
@@ -31,16 +31,16 @@ def test_invalid_note():
     Note(NoteName.b, pitch=Spn(10))
     Note(NoteName.b, pitch=Spn(10), modifier=Modifier.flat)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(NoteRangeException):
         Note(NoteName.c, pitch=Spn(-1), modifier=Modifier.flat)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(NoteRangeException):
         Note(NoteName.c, pitch=Spn(-1), modifier=Modifier.double_flat)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(NoteRangeException):
         Note(NoteName.b, pitch=Spn(10), modifier=Modifier.sharp)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(NoteRangeException):
         Note(NoteName.b, pitch=Spn(10), modifier=Modifier.double_sharp)
 
 
