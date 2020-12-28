@@ -21,4 +21,4 @@ run: build
 
 .PHONY: runUnitTests
 runUnitTests: buildDev
-	docker run -it -t eay/practice-mate.dev py.test .
+	docker run -it -t eay/practice-mate.dev py.test -s .
