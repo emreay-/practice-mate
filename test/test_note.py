@@ -101,3 +101,12 @@ def test_equality():
     assert not Note(NoteName.c, pitch=Spn(4), modifier=Modifier.double_flat) == Note(NoteName.c, pitch=Spn(4))
     assert not Note(NoteName.c, pitch=Spn(4), modifier=Modifier.sharp) == Note(NoteName.c, pitch=Spn(4))
     assert not Note(NoteName.c, pitch=Spn(4), modifier=Modifier.flat) == Note(NoteName.c, pitch=Spn(4))
+
+
+def test_inequality():
+    assert Note(NoteName.c, pitch=Spn(4)) >= Note(NoteName.c, pitch=Spn(4))
+    assert Note(NoteName.c, pitch=Spn(4)) >= Note(NoteName.c, pitch=Spn(3))
+    assert Note(NoteName.c, pitch=Spn(4)) > Note(NoteName.c, pitch=Spn(3))
+    assert Note(NoteName.c, pitch=Spn(2)) < Note(NoteName.c, pitch=Spn(3))
+    assert Note(NoteName.c, pitch=Spn(2)) <= Note(NoteName.c, pitch=Spn(3))
+    assert Note(NoteName.c, pitch=Spn(2)) <= Note(NoteName.c, pitch=Spn(2))

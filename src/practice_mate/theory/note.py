@@ -54,8 +54,14 @@ class Note:
     def index(self) -> NoteIndex:
         return self._index
 
+    def __ge__(self, other: "Note") -> bool:
+        return self.index >= other.index
+
+    def __gt__(self, other: "Note") -> bool:
+        return self.index > other.index
+
     def __eq__(self, other: "Note") -> bool:
-        return self._index == other._index
+        return self.index == other.index
 
     def __str__(self) -> str:
         return f"{self._base}{self._modifier.value if self._modifier else ''}{self._pitch}"
