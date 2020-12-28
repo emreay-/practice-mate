@@ -67,7 +67,7 @@ SHARPENING_MODIFIERS = {Modifier.sharp, Modifier.double_sharp}
 
 def determine_note_index(base: NoteName, pitch: Spn, modifier: Optional[Modifier] = None) -> NoteIndex:
     if pitch == Spn(-1) and base is NoteName.c and modifier in FLATTENING_MODIFIERS:
-        raise ValueError(f"Cannot go flatter than C0")
+        raise ValueError(f"Cannot go flatter than C-1")
     if pitch == Spn(10) and base is NoteName.b and modifier in SHARPENING_MODIFIERS:
         raise ValueError(f"Cannot go sharper than B10")
 

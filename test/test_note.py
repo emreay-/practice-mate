@@ -23,6 +23,25 @@ def test_repr():
             assert expected_repr == repr(Note(note_name, pitch, modifier))
 
 
+def test_invalid_note():
+    Note(NoteName.c, pitch=Spn(-1))
+    Note(NoteName.c, pitch=Spn(-1), modifier=Modifier.sharp)
+    Note(NoteName.b, pitch=Spn(10))
+    Note(NoteName.b, pitch=Spn(10), modifier=Modifier.flat)
+
+    with pytest.raises(ValueError):
+        Note(NoteName.c, pitch=Spn(-1), modifier=Modifier.flat)
+
+    with pytest.raises(ValueError):
+        Note(NoteName.c, pitch=Spn(-1), modifier=Modifier.double_flat)
+
+    with pytest.raises(ValueError):
+        Note(NoteName.b, pitch=Spn(10), modifier=Modifier.sharp)
+
+    with pytest.raises(ValueError):
+        Note(NoteName.b, pitch=Spn(10), modifier=Modifier.double_sharp)
+
+
 def test_indices():
     assert Note(NoteName.c, pitch=Spn(-1), modifier=None).index == NoteIndex(0)
     assert Note(NoteName.c, pitch=Spn(-1), modifier=Modifier.natural).index == NoteIndex(0)
