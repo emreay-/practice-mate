@@ -12,7 +12,6 @@ setup(
         "practice-mate = practice_mate.__main__:main",
     ]},
     install_requires=[
-        "dataclasses",
         "tqdm"
     ]
 )

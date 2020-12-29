@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import List
 
 from practice_mate.theory import Interval, Note
@@ -7,12 +6,28 @@ from practice_mate.theory import Interval, Note
 __all__ = ["Tuning", "EStandard", "BStandard", "DropD", "KNOWN_TUNINGS"]
 
 
-@dataclass(frozen=True)
 class Tuning:
-    name: str
-    strings: int
-    lowest_note: Note
-    rules: List[Interval]
+    def __init__(self, name: str, strings: int, lowest_note: Note, rules: List[Interval]):
+        self._name = name
+        self._strings = strings
+        self._lowest_note = lowest_note
+        self._rules = rules
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def strings(self):
+        return self._strings
+
+    @property
+    def lowest_note(self):
+        return self._lowest_note
+
+    @property
+    def rules(self):
+        return self._rules
 
     def open_string_notes_desc(self):
         open_string_notes = [self.lowest_note]
