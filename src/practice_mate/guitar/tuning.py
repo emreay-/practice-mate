@@ -4,7 +4,7 @@ from typing import List
 from practice_mate.theory import Interval, Note
 
 
-__all__ = ["Tuning", "EStandard", "BStandard", "DropD"]
+__all__ = ["Tuning", "EStandard", "BStandard", "DropD", "KNOWN_TUNINGS"]
 
 
 @dataclass(frozen=True)
@@ -64,3 +64,6 @@ DropD = Tuning(
         Interval.from_str("Perfect 4th"),
     ]
 )
+
+
+KNOWN_TUNINGS = (EStandard, BStandard, DropD)

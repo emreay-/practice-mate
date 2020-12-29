@@ -16,7 +16,7 @@ buildDev: build
 .PHONY: run
 run: build
 	docker run -it \
-		-t eay/practice-mate <ENTRY>
+		-t eay/practice-mate practice-mate
 
 
 .PHONY: runUnitTests

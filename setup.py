@@ -8,5 +8,8 @@ setup(
     author="Emre Ay",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
+    entry_points={"console_scripts": [
+        "practice-mate = practice_mate.__main__:main",
+    ]},
     install_requires=[]
 )

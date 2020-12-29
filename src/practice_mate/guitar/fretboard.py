@@ -31,6 +31,14 @@ class Fretboard:
             self._fretboard_notes[string_number] = _string_notes
 
     @property
+    def tuning(self) -> Tuning:
+        return self._tuning
+
+    @property
+    def frets(self) -> int:
+        return self._frets
+
+    @property
     def all_notes(self) -> Dict[int, List[Note]]:
         return deepcopy(self._fretboard_notes)
 
