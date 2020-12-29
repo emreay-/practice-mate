@@ -11,5 +11,8 @@ setup(
     entry_points={"console_scripts": [
         "practice-mate = practice_mate.__main__:main",
     ]},
-    install_requires=["tqdm"]
+    install_requires=[
+        "dataclasses",
+        "tqdm"
+    ]
 )
