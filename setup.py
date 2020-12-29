@@ -11,5 +11,5 @@ setup(
     entry_points={"console_scripts": [
         "practice-mate = practice_mate.__main__:main",
     ]},
-    install_requires=[]
+    install_requires=["tqdm"]
 )

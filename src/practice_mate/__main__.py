@@ -2,7 +2,7 @@ from typing import Tuple
 
 from practice_mate.ui_utility import *
 from practice_mate.guitar.tuning import KNOWN_TUNINGS, Tuning
-from practice_mate.practice import name_the_note
+from practice_mate.practice import name_the_note, name_the_note_timed
 
 
 def main():
@@ -12,6 +12,8 @@ def main():
 
     if option == 1:
         name_the_note(frets, tuning)
+    elif option == 2:
+        name_the_note_timed(frets, tuning)
 
 
 def main_menu():
@@ -21,7 +23,7 @@ def main_menu():
 Please choose one from the below (the list will grow):\n
 """)
             option = int(input(make_green("""1. NAME THE NOTE -- You will be ask to name the note at a string/fret combination
-2. NAME THE NOTE [TIMED] -- Same as (1) except there will be an adjustable time out\n
+2. NAME THE NOTE [TIMED] -- Same as (1) except there will be an adjustable timeout\n
 """)))
         except ValueError:
             pass
