@@ -12,6 +12,7 @@ setup(
         "practice-mate = practice_mate.__main__:main",
     ]},
     install_requires=[
-        "tqdm"
+        "pygame",
+        "pygame-menu",
     ]
 )

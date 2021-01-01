@@ -37,13 +37,13 @@ class NoteName(str, Enum):
 
 @unique
 class Modifier(str, Enum):
-    flat = "♭"
-    sharp = "♯"
-    natural = "♮"
-    double_flat = "♭♭"
-    double_sharp = "♯♯"
-    triple_flat = "♭♭♭"
-    triple_sharp = "♯♯♯"
+    flat = "b"  # "♭"
+    sharp = "#"  # "♯"
+    natural = "natural"  # "♮"
+    double_flat = "bb"  # "♭♭"
+    double_sharp = "##"  # "♯♯"
+    triple_flat = "bbb"  # "♭♭♭"
+    triple_sharp = "###"  # "♯♯♯"
 
 
 _NOTE_NAMES_LIST = [i for i in NoteName]

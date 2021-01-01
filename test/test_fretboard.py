@@ -10,7 +10,7 @@ def test_fretboard_populate():
     frets = 24
 
     expected = {}
-    for i, note in enumerate(tuning.open_string_notes_desc()[::-1]):
+    for i, note in enumerate(tuning.open_string_notes_desc()[::-1], 1):
         _data = []
         _gen = ChromaticScale(note).generator()
         for _ in range(frets + 1):
@@ -23,16 +23,16 @@ def test_fretboard_populate():
 def test_fretboard_get_note():
     fretboard = Fretboard(frets=24, tuning=EStandard)
     
-    assert fretboard.get_note(5, 0) == Note.from_str("E2")
-    assert fretboard.get_note(5, 12) == Note.from_str("E3")
-    assert fretboard.get_note(5, 24) == Note.from_str("E4")
-    assert fretboard.get_note(4, 7) == Note.from_str("E3")
-    assert fretboard.get_note(4, 10) == Note.from_str("G3")
-    assert fretboard.get_note(3, 8) == Note.from_str("A#3")
-    assert fretboard.get_note(1, 7) == Note.from_str("F#4")
+    assert fretboard.get_note(6, 0) == Note.from_str("E2")
+    assert fretboard.get_note(6, 12) == Note.from_str("E3")
+    assert fretboard.get_note(6, 24) == Note.from_str("E4")
+    assert fretboard.get_note(5, 7) == Note.from_str("E3")
+    assert fretboard.get_note(5, 10) == Note.from_str("G3")
+    assert fretboard.get_note(4, 8) == Note.from_str("A#3")
+    assert fretboard.get_note(2, 7) == Note.from_str("F#4")
 
     with pytest.raises(FretboardRangeError):
-        fretboard.get_note(7, 5) == Note.from_str("F#4")
+        fretboard.get_note(8, 5) == Note.from_str("F#4")
 
     with pytest.raises(FretboardRangeError):
         fretboard.get_note(5, 25) == Note.from_str("F#4")

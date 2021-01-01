@@ -21,8 +21,7 @@ class Fretboard:
         self._populate()
 
     def _populate(self):
-        for string_number, open_string_note in zip(range(self._tuning.strings - 1, -1, -1), 
-                                                   self._tuning.open_string_notes_desc()):
+        for string_number, open_string_note in zip(range(self.strings, 0, -1), self.tuning.open_string_notes_desc()):
             _string_notes = []
             note_generator = ChromaticScale(open_string_note).generator()
 
@@ -35,6 +34,10 @@ class Fretboard:
         return self._tuning
 
     @property
+    def strings(self) -> int:
+        return self.tuning.strings
+
+    @property
     def frets(self) -> int:
         return self._frets
 
@@ -43,6 +46,6 @@ class Fretboard:
         return deepcopy(self._fretboard_notes)
 
     def get_note(self, string: int, fret: int) -> Note:
-        if 0 <= string < self._tuning.strings and 0 <= fret <= self._frets:
+        if 0 < string <= self._tuning.strings and 0 <= fret <= self._frets:
             return self._fretboard_notes[string][fret]
         raise FretboardRangeError(f"For string {string} and fret {fret}")
