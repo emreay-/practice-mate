@@ -1,17 +1,13 @@
-import time
 from random import randint
-from typing import Tuple, Dict
-from collections import defaultdict
+from typing import Tuple
 
 import pygame
 import pygame_menu
 from pygame.locals import *
 
-from practice_mate.theory import Note
-from practice_mate.ui_utility import *
-from practice_mate.guitar.tuning import Tuning
 from practice_mate.guitar.fretboard import Fretboard
-
+from practice_mate.guitar.tuning import Tuning
+from practice_mate.ui_utility import *
 
 __all__ = ["name_the_note", "name_the_note_timed"]
 
