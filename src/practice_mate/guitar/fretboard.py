@@ -5,7 +5,11 @@ from practice_mate.theory import Note, Interval, note_generator, ChromaticScale
 from practice_mate.guitar import Tuning, EStandard
 
 
-__all__ = ["Fretboard", "FretboardRangeError"]
+__all__ = ["Fretboard", "FretboardRangeError", "Fret", "String"]
+
+
+Fret = int
+String = int
 
 
 class FretboardRangeError(Exception):
@@ -45,7 +49,7 @@ class Fretboard:
     def all_notes(self) -> Dict[int, List[Note]]:
         return deepcopy(self._fretboard_notes)
 
-    def get_note(self, string: int, fret: int) -> Note:
+    def get_note(self, string: String, fret: Fret) -> Note:
         if 0 < string <= self._tuning.strings and 0 <= fret <= self._frets:
             return self._fretboard_notes[string][fret]
         raise FretboardRangeError(f"For string {string} and fret {fret}")
