@@ -90,10 +90,10 @@ class Interval:
 
     def _determine_semitones(self) -> SemiTone:
         semitones = QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE[self._quantity]
-        
+
         if self._quality in {Quality.major, Quality.perfect}:
             return semitones 
-        
+
         if self._quality is Quality.minor:
             return semitones - SemiTone(1)
 
@@ -114,7 +114,7 @@ class Interval:
 
         if self._quality is Quality.doubly_augmented:
             return semitones + SemiTone(2)
-    
+
     def __str__(self) -> str:
         return f"{self._quality} {self._quantity}"
 
