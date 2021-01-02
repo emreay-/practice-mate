@@ -29,6 +29,16 @@ run: build
     -t eay/practice-mate practice-mate
 
 
+.PHONY: devInstall
+devInstall:
+	pip3 install -e .
+
+
 .PHONY: runUnitTests
-runUnitTests: buildDev
-	docker run -it -t eay/practice-mate.dev py.test -s .
+runUnitTests: devInstall
+	coverage run --rcfile=./rcfile -m pytest -s ./test/ && coverage report
+
+
+.PHONY: runUnitTestsDocker
+runUnitTestsDocker: buildDev
+	docker run -it -t eay/practice-mate.dev coverage run --rcfile=./rcfile -m pytest -s ./test/ && coverage report
