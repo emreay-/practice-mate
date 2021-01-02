@@ -24,6 +24,12 @@ def test_invalid_intervals():
 
 
 def test_interval_semitones():
+    assert Interval(Quality.doubly_diminished, Quantity.unison).semitones == SemiTone(-2)
+    assert Interval(Quality.diminished, Quantity.unison).semitones == SemiTone(-1)
+    assert Interval(Quality.perfect, Quantity.unison).semitones == SemiTone(0)
+    assert Interval(Quality.augmented, Quantity.unison).semitones == SemiTone(1)
+    assert Interval(Quality.doubly_augmented, Quantity.unison).semitones == SemiTone(2)
+
     assert Interval(Quality.doubly_diminished, Quantity.second).semitones == SemiTone(-1)
     assert Interval(Quality.diminished, Quantity.second).semitones == SemiTone(0)
     assert Interval(Quality.minor, Quantity.second).semitones == SemiTone(1)
@@ -119,6 +125,14 @@ def test_interval_semitones():
 
 
 def test_get_note_name_for_quantity():
+    assert NoteName.b is get_note_name_for_quantity(NoteName.b, Quantity.unison)
+    assert NoteName.c is get_note_name_for_quantity(NoteName.c, Quantity.unison)
+    assert NoteName.d is get_note_name_for_quantity(NoteName.d, Quantity.unison)
+    assert NoteName.e is get_note_name_for_quantity(NoteName.e, Quantity.unison)
+    assert NoteName.f is get_note_name_for_quantity(NoteName.f, Quantity.unison)
+    assert NoteName.g is get_note_name_for_quantity(NoteName.g, Quantity.unison)
+    assert NoteName.a is get_note_name_for_quantity(NoteName.a, Quantity.unison)
+
     assert NoteName.b is get_note_name_for_quantity(NoteName.a, Quantity.second)
     assert NoteName.c is get_note_name_for_quantity(NoteName.b, Quantity.second)
     assert NoteName.d is get_note_name_for_quantity(NoteName.c, Quantity.second)
@@ -233,6 +247,7 @@ def test_get_note_name_for_quantity():
 
 
 def test_from_str():
+    assert Interval.from_str("Perfect unison") == Interval(Quality.perfect, Quantity.unison)
     assert Interval.from_str("Minor 3rd") == Interval(Quality.minor, Quantity.third)
     assert Interval.from_str("Minor 10th") == Interval(Quality.minor, Quantity.tenth)
     assert Interval.from_str("Major 3rd") == Interval(Quality.major, Quantity.third)

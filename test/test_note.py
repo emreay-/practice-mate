@@ -231,12 +231,15 @@ def test_apply():
     doubly_augmented_second = Interval.from_str("Doubly augmented 2nd")
     perfect_fourth = Interval.from_str("Perfect 4th")
     perfect_fifth = Interval.from_str("Perfect 5th")
+    perfect_unison = Interval.from_str("Perfect unison")
     perfect_twelfth = Interval.from_str("Perfect 12th")
     minor_sixth = Interval.from_str("Minor 6th")
     diminished_sixth = Interval.from_str("Diminished 6th")
     doubly_diminished_sixth = Interval.from_str("Doubly diminished 6th")
 
     assert Note.from_str("C-1").apply(perfect_fifth) == Note.from_str("G-1")
+    assert Note.from_str("A").apply(perfect_unison) == Note.from_str("A")
+    assert Note.from_str("A4").apply(perfect_unison) == Note.from_str("A4")
     assert Note.from_str("A").apply(doubly_augmented_second) == Note.from_str("B##")
     assert Note.from_str("A4").apply(doubly_augmented_second) == Note.from_str("B##4")
 

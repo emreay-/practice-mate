@@ -8,6 +8,10 @@ __all__ = ["Quality", "Quantity", "Interval", "get_note_name_for_quantity", "Not
 
 class NoteProtocol(Protocol):
     @property
+    def base(self) -> NoteName:
+        raise NotImplementedError()
+
+    @property
     def index(self) -> Optional[NoteIndex]:
         raise NotImplementedError()
 
@@ -27,6 +31,7 @@ class Quality(str, Enum):
 
 
 class Quantity(str, Enum):
+    unison = "unison"
     second = "2nd"
     third = "3rd"
     fourth = "4th"
@@ -45,6 +50,7 @@ class Quantity(str, Enum):
 
 
 QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE = {
+    Quantity.unison: SemiTone(0),
     Quantity.second: SemiTone(2),
     Quantity.third: SemiTone(4),
     Quantity.fourth: SemiTone(5),
@@ -63,6 +69,7 @@ QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE = {
 
 
 QUANTITY_TO_DEGREE = {
+    Quantity.unison: 1,
     Quantity.second: 2,
     Quantity.third: 3,
     Quantity.fourth: 4,
@@ -89,7 +96,7 @@ def get_note_name_for_quantity(base_note: NoteName, quantity: Quantity) -> NoteN
 
 
 def is_perfect_quantity(quantity: Quantity) -> bool:
-    return quantity in {Quantity.fourth, Quantity.fifth, Quantity.eighth,
+    return quantity in {Quantity.unison, Quantity.fourth, Quantity.fifth, Quantity.eighth,
                         Quantity.eleventh, Quantity.twelfth, Quantity.fifteenth}
 
 
@@ -105,7 +112,7 @@ class Interval:
     def from_str(value: str) -> "Interval":
         tokens = value.strip().split(" ")
         try:
-            return Interval(Quality(" ".join(tokens[:-1])), Quantity(tokens[-1]))
+            return Interval(Quality(" ".join(tokens[:-1]).capitalize()), Quantity(tokens[-1].lower()))
         except Exception:
             raise ValueError(f"Cannot create Interval from {value}")
 
