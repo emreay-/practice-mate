@@ -1,7 +1,9 @@
 import pytest
 
+from practice_mate.theory.note import Note
 from practice_mate.theory.fundamentals import SemiTone, NoteName
-from practice_mate.theory.interval import Interval, Quality, Quantity, get_note_name_for_quantity
+from practice_mate.theory.interval import Interval, Quality, Quantity, get_note_name_for_quantity, \
+    get_quantity_between_notes, NotesUnsuitableForFindingIntervalException
 
 
 def test_invalid_intervals():
@@ -246,6 +248,28 @@ def test_get_note_name_for_quantity():
     assert NoteName.g is get_note_name_for_quantity(NoteName.g, Quantity.fifteenth)
 
 
+def test_get_quantity_between_notes():
+    assert Quantity.unison is get_quantity_between_notes(NoteName.a, NoteName.a)
+
+    assert Quantity.second is get_quantity_between_notes(NoteName.a, NoteName.b)
+    assert Quantity.seventh is get_quantity_between_notes(NoteName.b, NoteName.a)
+
+    assert Quantity.third is get_quantity_between_notes(NoteName.a, NoteName.c)
+    assert Quantity.sixth is get_quantity_between_notes(NoteName.c, NoteName.a)
+
+    assert Quantity.fourth is get_quantity_between_notes(NoteName.a, NoteName.d)
+    assert Quantity.fifth is get_quantity_between_notes(NoteName.d, NoteName.a)
+
+    assert Quantity.fifth is get_quantity_between_notes(NoteName.a, NoteName.e)
+    assert Quantity.fourth is get_quantity_between_notes(NoteName.e, NoteName.a)
+
+    assert Quantity.sixth is get_quantity_between_notes(NoteName.a, NoteName.f)
+    assert Quantity.third is get_quantity_between_notes(NoteName.f, NoteName.a)
+
+    assert Quantity.seventh is get_quantity_between_notes(NoteName.a, NoteName.g)
+    assert Quantity.second is get_quantity_between_notes(NoteName.g, NoteName.a)
+
+
 def test_from_str():
     assert Interval.from_str("Perfect unison") == Interval(Quality.perfect, Quantity.unison)
     assert Interval.from_str("Minor 3rd") == Interval(Quality.minor, Quantity.third)
@@ -257,3 +281,49 @@ def test_from_str():
     assert Interval.from_str("Doubly augmented 5th") == Interval(Quality.doubly_augmented, Quantity.fifth)
     assert Interval.from_str("Doubly augmented 12th") == Interval(Quality.doubly_augmented, Quantity.twelfth)
     assert Interval.from_str("Doubly diminished 4th") == Interval(Quality.doubly_diminished, Quantity.fourth)
+
+
+def test_interval_between_notes():
+    def _check_interval(first_note, second_note, interval, reverse_interval, naive_interval=None, raises=True):
+        if naive_interval is None:
+            naive_interval = interval
+
+        assert interval == Interval.between_notes(Note.from_str(first_note), Note.from_str(second_note))
+        assert naive_interval == Interval.between_notes(Note.from_str(first_note).get_naive(),
+                                                        Note.from_str(second_note).get_naive())
+        assert reverse_interval == Interval.between_notes(Note.from_str(second_note).get_naive(),
+                                                          Note.from_str(first_note).get_naive())
+        if raises:
+            with pytest.raises(NotesUnsuitableForFindingIntervalException):
+                Interval.between_notes(Note.from_str(second_note), Note.from_str(first_note))
+        else:
+            assert reverse_interval == Interval.between_notes(Note.from_str(second_note), Note.from_str(first_note))
+
+    _check_interval("E4", "E4", Interval.from_str("Perfect unison"), Interval.from_str("Perfect unison"), raises=False)
+    _check_interval("E4", "E5", Interval.from_str("Perfect 8th"), Interval.from_str("Perfect unison"),
+                    Interval.from_str("Perfect unison"))
+    _check_interval("E4", "E6", Interval.from_str("Perfect 15th"), Interval.from_str("Perfect unison"),
+                    Interval.from_str("Perfect unison"))
+    _check_interval("E4", "E7", Interval.from_str("Perfect unison"), Interval.from_str("Perfect unison"))
+    _check_interval("C4", "D4", Interval.from_str("Major 2nd"), Interval.from_str("Minor 7th"))
+    _check_interval("C4", "E4", Interval.from_str("Major 3rd"), Interval.from_str("Minor 6th"))
+    _check_interval("C4", "F4", Interval.from_str("Perfect 4th"), Interval.from_str("Perfect 5th"))
+    _check_interval("C4", "A4", Interval.from_str("Major 6th"), Interval.from_str("Minor 3rd"))
+    _check_interval("C4", "B4", Interval.from_str("Major 7th"), Interval.from_str("Minor 2nd"))
+    _check_interval("C4", "Eb4", Interval.from_str("Minor 3rd"), Interval.from_str("Major 6th"))
+    _check_interval("C4", "Ebb4", Interval.from_str("Diminished 3rd"), Interval.from_str("Augmented 6th"))
+    _check_interval("C4", "Ebbb4", Interval.from_str("Doubly diminished 3rd"),
+                    Interval.from_str("Doubly augmented 6th"))
+    _check_interval("C4", "Fb4", Interval.from_str("Diminished 4th"), Interval.from_str("Augmented 5th"))
+    _check_interval("C#4", "F4", Interval.from_str("Diminished 4th"), Interval.from_str("Augmented 5th"))
+    _check_interval("C4", "F#4", Interval.from_str("Augmented 4th"), Interval.from_str("Diminished 5th"))
+    _check_interval("C4", "F##4", Interval.from_str("Doubly augmented 4th"),
+                    Interval.from_str("Doubly diminished 5th"))
+    _check_interval("C4", "F##5", Interval.from_str("Doubly augmented 11th"),
+                    Interval.from_str("Doubly diminished 5th"),
+                    Interval.from_str("Doubly augmented 4th"))
+
+    for _f, _s in (("C4", "G4"), ("G4", "D5"), ("D5", "A5"), ("A5", "E6"), ("E6", "B6"),
+                   ("B6", "F#7"), ("F#7", "C#8"), ("Db8", "Ab8"), ("Ab8", "Eb9"),
+                   ("Eb9", "Bb9"), ("Bb9", "F10"), ("F9", "C10")):
+        _check_interval(_f, _s, Interval.from_str("Perfect 5th"), Interval.from_str("Perfect 4th"))

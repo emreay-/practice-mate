@@ -1,9 +1,11 @@
 from enum import Enum
-from typing import Protocol, Optional
+from typing import Protocol, Optional, cast
 
+from practice_mate.utility import cycle_enum
 from practice_mate.theory.fundamentals import SemiTone, NoteName, cycle, NoteIndex
 
-__all__ = ["Quality", "Quantity", "Interval", "get_note_name_for_quantity", "NoteProtocol"]
+__all__ = ["Quality", "Quantity", "Interval", "get_note_name_for_quantity", "get_quantity_between_notes",
+           "NoteProtocol", "CannotFindIntervalException", "NotesUnsuitableForFindingIntervalException"]
 
 
 class NoteProtocol(Protocol):
@@ -67,6 +69,8 @@ QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE = {
     Quantity.fifteenth: SemiTone(24)
 }
 
+SEMITONE_IN_MAJOR_SCALE_TO_QUANTITY = {v: k for k, v in QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE.items()}
+
 
 QUANTITY_TO_DEGREE = {
     Quantity.unison: 1,
@@ -95,9 +99,28 @@ def get_note_name_for_quantity(base_note: NoteName, quantity: Quantity) -> NoteN
     return next(iterator)
 
 
+def get_quantity_between_notes(first: NoteName, second: NoteName) -> Quantity:
+    note_generator = cycle(root=first)
+    quantity_generator = cycle_enum(Quantity)
+
+    while True:
+        _note = next(note_generator)
+        _quantity = cast(Quantity, next(quantity_generator))
+        if _note is second:
+            return _quantity
+
+
 def is_perfect_quantity(quantity: Quantity) -> bool:
     return quantity in {Quantity.unison, Quantity.fourth, Quantity.fifth, Quantity.eighth,
                         Quantity.eleventh, Quantity.twelfth, Quantity.fifteenth}
+
+
+class CannotFindIntervalException(Exception):
+    pass
+
+
+class NotesUnsuitableForFindingIntervalException(Exception):
+    pass
 
 
 class Interval:
@@ -115,6 +138,28 @@ class Interval:
             return Interval(Quality(" ".join(tokens[:-1]).capitalize()), Quantity(tokens[-1].lower()))
         except Exception:
             raise ValueError(f"Cannot create Interval from {value}")
+
+    @staticmethod
+    def between_notes(first: NoteProtocol, second: NoteProtocol) -> "Interval":
+        quantity = get_quantity_between_notes(first.base, second.base)
+
+        if first.index is None and second.index is None:
+            if first > second:
+                semitones = SemiTone(second.base_index + 12 - first.base_index)
+            else:
+                semitones = SemiTone(second.base_index - first.base_index)
+        elif first.index is not None and second.index is not None:
+            if first > second:
+                raise NotesUnsuitableForFindingIntervalException(
+                    f"For the pitch aware notes, first <= second should be true, {first} and {second}")
+            semitones = SemiTone(second.index - first.index)
+        else:
+            raise NotesUnsuitableForFindingIntervalException(f"{first} and {second}")
+
+        try:
+            return Interval._determine_interval(quantity, semitones)
+        except CannotFindIntervalException:
+            raise NotesUnsuitableForFindingIntervalException(f"{first} and {second}")
 
     @property
     def quality(self) -> Quality:
@@ -161,6 +206,50 @@ class Interval:
 
         if self._quality is Quality.doubly_augmented:
             return semitones + SemiTone(2)
+
+    @staticmethod
+    def _determine_interval(quantity: Quantity, semitones: SemiTone) -> "Interval":
+        # Do not support compound intervals larger than an octave,
+        # any such interval will be treated to be in the same octave
+        if semitones > QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE[Quantity.fifteenth]:
+            semitones %= QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE[Quantity.eighth]
+
+        # Adjusting quantity for compound intervals
+        _multiplier = semitones // QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE[Quantity.eighth]
+        _semitone_for_quantity = QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE[quantity] + (
+                _multiplier * QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE[Quantity.eighth])
+        quantity = SEMITONE_IN_MAJOR_SCALE_TO_QUANTITY[_semitone_for_quantity]
+
+        expected_semitones = QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE[quantity]
+        difference_in_semitones = semitones - expected_semitones
+        is_perfect = is_perfect_quantity(quantity)
+
+        if is_perfect:
+            if difference_in_semitones == SemiTone(-2):
+                return Interval(quality=Quality.doubly_diminished, quantity=quantity)
+            elif difference_in_semitones == SemiTone(-1):
+                return Interval(quality=Quality.diminished, quantity=quantity)
+            elif difference_in_semitones == SemiTone(0):
+                return Interval(quality=Quality.perfect, quantity=quantity)
+            elif difference_in_semitones == SemiTone(1):
+                return Interval(quality=Quality.augmented, quantity=quantity)
+            elif difference_in_semitones == SemiTone(2):
+                return Interval(quality=Quality.doubly_augmented, quantity=quantity)
+        else:
+            if difference_in_semitones == SemiTone(-3):
+                return Interval(quality=Quality.doubly_diminished, quantity=quantity)
+            elif difference_in_semitones == SemiTone(-2):
+                return Interval(quality=Quality.diminished, quantity=quantity)
+            elif difference_in_semitones == SemiTone(-1):
+                return Interval(quality=Quality.minor, quantity=quantity)
+            elif difference_in_semitones == SemiTone(0):
+                return Interval(quality=Quality.major, quantity=quantity)
+            elif difference_in_semitones == SemiTone(1):
+                return Interval(quality=Quality.augmented, quantity=quantity)
+            elif difference_in_semitones == SemiTone(2):
+                return Interval(quality=Quality.doubly_augmented, quantity=quantity)
+        raise CannotFindIntervalException(f"Given quantity={quantity} and semitones={semitones} with "
+                                          f"{difference_in_semitones} difference")
 
     def __str__(self) -> str:
         return f"{self._quality} {self._quantity}"
