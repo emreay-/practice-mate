@@ -41,6 +41,9 @@ def name_the_note(frets: int, tuning: Tuning, surface: pygame.Surface):
                 running = False
 
             if event.type == pygame.KEYUP:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+
                 if event.key == pygame.K_RETURN:
                     is_question_turn = not is_question_turn
 
@@ -105,6 +108,9 @@ def _name_the_note_timed(frets: int, tuning: Tuning, timeout: int, surface: pyga
                 running = False
 
             if event.type == pygame.KEYUP:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+
                 if event.key == pygame.K_RETURN:
                     is_question_turn = not is_question_turn
 
