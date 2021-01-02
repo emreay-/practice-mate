@@ -1,8 +1,19 @@
 from enum import Enum
+from typing import Protocol, Optional
 
-from practice_mate.theory.fundamentals import SemiTone, NoteName, cycle
+from practice_mate.theory.fundamentals import SemiTone, NoteName, cycle, NoteIndex
 
-__all__ = ["Quality", "Quantity", "Interval", "get_note_name_for_quantity"]
+__all__ = ["Quality", "Quantity", "Interval", "get_note_name_for_quantity", "NoteProtocol"]
+
+
+class NoteProtocol(Protocol):
+    @property
+    def index(self) -> Optional[NoteIndex]:
+        raise NotImplementedError()
+
+    @property
+    def base_index(self) -> NoteIndex:
+        raise NotImplementedError()
 
 
 class Quality(str, Enum):
@@ -24,6 +35,14 @@ class Quantity(str, Enum):
     seventh = "7th"
     eighth = "8th"
 
+    ninth = "9th"
+    tenth = "10th"
+    eleventh = "11th"
+    twelfth = "12th"
+    thirteenth = "13th"
+    fourteenth = "14th"
+    fifteenth = "15th"
+
 
 QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE = {
     Quantity.second: SemiTone(2),
@@ -32,40 +51,61 @@ QUANTITY_TO_SEMITONE_IN_MAJOR_SCALE = {
     Quantity.fifth: SemiTone(7),
     Quantity.sixth: SemiTone(9),
     Quantity.seventh: SemiTone(11),
-    Quantity.eighth: SemiTone(12)
+    Quantity.eighth: SemiTone(12),
+    Quantity.ninth: SemiTone(14),
+    Quantity.tenth: SemiTone(16),
+    Quantity.eleventh: SemiTone(17),
+    Quantity.twelfth: SemiTone(19),
+    Quantity.thirteenth: SemiTone(21),
+    Quantity.fourteenth: SemiTone(23),
+    Quantity.fifteenth: SemiTone(24)
+}
+
+
+QUANTITY_TO_DEGREE = {
+    Quantity.second: 2,
+    Quantity.third: 3,
+    Quantity.fourth: 4,
+    Quantity.fifth: 5,
+    Quantity.sixth: 6,
+    Quantity.seventh: 7,
+    Quantity.eighth: 8,
+    Quantity.ninth: 9,
+    Quantity.tenth: 10,
+    Quantity.eleventh: 11,
+    Quantity.twelfth: 12,
+    Quantity.thirteenth: 13,
+    Quantity.fourteenth: 14,
+    Quantity.fifteenth: 15
 }
 
 
 def get_note_name_for_quantity(base_note: NoteName, quantity: Quantity) -> NoteName:
-    degree = {
-        Quantity.second: 2,
-        Quantity.third: 3,
-        Quantity.fourth: 4,
-        Quantity.fifth: 5,
-        Quantity.sixth: 6,
-        Quantity.seventh: 7,
-        Quantity.eighth: 8,
-    }.get(quantity)
-
+    degree = QUANTITY_TO_DEGREE.get(quantity)
     iterator = cycle(root=base_note)
     for _ in range(degree - 1):
         next(iterator)
     return next(iterator)
 
 
+def is_perfect_quantity(quantity: Quantity) -> bool:
+    return quantity in {Quantity.fourth, Quantity.fifth, Quantity.eighth,
+                        Quantity.eleventh, Quantity.twelfth, Quantity.fifteenth}
+
+
 class Interval:
     def __init__(self, quality: Quality, quantity: Quantity):
         self._quality = quality
         self._quantity = quantity
-        self._is_perfect_quantity = quantity in {Quantity.fourth, Quantity.fifth, Quantity.eighth}
+        self._is_perfect_quantity = is_perfect_quantity(self._quantity)
         self._validate()
         self._semitones = self._determine_semitones()
 
     @staticmethod
     def from_str(value: str) -> "Interval":
-        value = value.strip()
+        tokens = value.strip().split(" ")
         try:
-            return Interval(Quality(value[:-4]), Quantity(value[-3:]))
+            return Interval(Quality(" ".join(tokens[:-1])), Quantity(tokens[-1]))
         except Exception:
             raise ValueError(f"Cannot create Interval from {value}")
 

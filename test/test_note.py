@@ -231,6 +231,7 @@ def test_apply():
     doubly_augmented_second = Interval.from_str("Doubly augmented 2nd")
     perfect_fourth = Interval.from_str("Perfect 4th")
     perfect_fifth = Interval.from_str("Perfect 5th")
+    perfect_twelfth = Interval.from_str("Perfect 12th")
     minor_sixth = Interval.from_str("Minor 6th")
     diminished_sixth = Interval.from_str("Diminished 6th")
     doubly_diminished_sixth = Interval.from_str("Doubly diminished 6th")
@@ -296,3 +297,10 @@ def test_apply():
     assert Note.from_str("C").apply(minor_sixth) == Note.from_str("Ab")
     assert Note.from_str("C").apply(diminished_sixth) == Note.from_str("Abb")
     assert Note.from_str("C").apply(doubly_diminished_sixth) == Note.from_str("Abbb")
+
+    # Compound
+    assert Note.from_str("C4").apply(perfect_twelfth) == Note.from_str("G5")
+    assert Note.from_str("G4").apply(perfect_twelfth) == Note.from_str("D6")
+    assert Note.from_str("D5").apply(perfect_twelfth) == Note.from_str("A6")
+    assert Note.from_str("A5").apply(perfect_twelfth) == Note.from_str("E7")
+    assert Note.from_str("E6").apply(perfect_twelfth) == Note.from_str("B7")
