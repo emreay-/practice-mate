@@ -19,9 +19,21 @@ class Spn(int):
 
 class NoteIndex(int):
     def __new__(cls, *args, **kwargs):
-        if args[0] in range(0, 144):
+        if args[0] in range(cls.min_int(), cls.max_int() + 1):
             return super().__new__(cls, *args, **kwargs)
         raise ValueError(f"Invalid note index {args[0]}")
+
+    @staticmethod
+    def min_int() -> int:
+        return 0
+
+    @staticmethod
+    def max_int() -> int:
+        return 143
+
+    @staticmethod
+    def bounded(value: int) -> "NoteIndex":
+        return NoteIndex(max(NoteIndex.min_int(), min(NoteIndex.max_int(), value)))
 
 
 @unique
