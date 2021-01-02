@@ -67,6 +67,9 @@ class Note:
     @staticmethod
     def from_str(value: str) -> "Note":
         value = value.strip()
+        if not value:
+            raise ValueError("Empty string cannot be parsed")
+
         base = NoteName(value[0].upper())
         try:
             numerics = "".join([i for i in value if i.isnumeric()])
