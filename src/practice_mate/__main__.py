@@ -1,9 +1,9 @@
 import pygame
 import pygame_menu
 
+from practice_mate.practice import *
 from practice_mate.ui_utility import *
 from practice_mate.guitar.tuning import KNOWN_TUNINGS, EStandard
-from practice_mate.practice import name_the_note, name_the_note_timed
 
 pygame.init()
 
@@ -40,7 +40,7 @@ def select_practice():
     menu = pygame_menu.Menu(*MENU_SIZE, "Select Practice", theme=pygame_menu.themes.THEME_DARK)
     menu.add_button("Name the Note", lambda: name_the_note(FRETS, TUNING, DISPLAY_SURFACE))
     menu.add_button("Name the Note [Timed]", lambda: name_the_note_timed(FRETS, TUNING, DISPLAY_SURFACE))
-    menu.add_button("Name the Note [Quiz]", lambda: name_the_note(FRETS, TUNING, DISPLAY_SURFACE))
+    menu.add_button("Name the Note [Quiz]", lambda: name_the_note_quiz(FRETS, TUNING, DISPLAY_SURFACE))
     menu.add_button("Quit", pygame_menu.events.EXIT)
 
     menu.mainloop(DISPLAY_SURFACE)
