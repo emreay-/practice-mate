@@ -60,7 +60,7 @@ class Interval:
         self._is_perfect_quantity = quantity in {Quantity.fourth, Quantity.fifth, Quantity.eighth}
         self._validate()
         self._semitones = self._determine_semitones()
-    
+
     @staticmethod
     def from_str(value: str) -> "Interval":
         value = value.strip()

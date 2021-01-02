@@ -1,7 +1,7 @@
 import pytest
 from practice_mate.theory.fundamentals import *
 from practice_mate.theory.interval import *
-from practice_mate.theory.note import Note, determine_notes_from_index, NoteRangeException
+from practice_mate.theory.note import Note, determine_notes_from_index, NoteRangeException, NotePitchAwarenessException
 
 
 def test_spn():
@@ -45,6 +45,16 @@ def test_invalid_note():
 
 
 def test_indices():
+    assert Note(NoteName.c, modifier=None).index is None
+    assert Note(NoteName.c, modifier=Modifier.natural).index is None
+    assert Note(NoteName.c, modifier=Modifier.sharp).index is None
+    assert Note(NoteName.c, modifier=Modifier.double_sharp).index is None
+
+    assert Note(NoteName.c, pitch=Spn(4), modifier=None).index == NoteIndex(60)
+    assert Note(NoteName.c, pitch=Spn(4), modifier=Modifier.natural).index == NoteIndex(60)
+    assert Note(NoteName.c, pitch=Spn(4), modifier=Modifier.sharp).index == NoteIndex(61)
+    assert Note(NoteName.c, pitch=Spn(4), modifier=Modifier.double_sharp).index == NoteIndex(62)
+
     assert Note(NoteName.c, pitch=Spn(-1), modifier=None).index == NoteIndex(0)
     assert Note(NoteName.c, pitch=Spn(-1), modifier=Modifier.natural).index == NoteIndex(0)
     assert Note(NoteName.c, pitch=Spn(-1), modifier=Modifier.sharp).index == NoteIndex(1)
@@ -91,8 +101,61 @@ def test_indices():
     assert Note(NoteName.b, pitch=Spn(-1), modifier=Modifier.double_sharp).index == NoteIndex(13)
 
 
+def test_base_indices():
+    assert Note(NoteName.c, pitch=Spn(4), modifier=None).base_index == NoteIndex(0)
+    assert Note(NoteName.c, pitch=Spn(4), modifier=Modifier.natural).base_index == NoteIndex(0)
+    assert Note(NoteName.c, pitch=Spn(4), modifier=Modifier.sharp).base_index == NoteIndex(1)
+    assert Note(NoteName.c, pitch=Spn(4), modifier=Modifier.double_sharp).base_index == NoteIndex(2)
+
+    assert Note(NoteName.d, pitch=Spn(4), modifier=None).base_index == NoteIndex(2)
+    assert Note(NoteName.d, pitch=Spn(4), modifier=Modifier.natural).base_index == NoteIndex(2)
+    assert Note(NoteName.d, pitch=Spn(4), modifier=Modifier.sharp).base_index == NoteIndex(3)
+    assert Note(NoteName.d, pitch=Spn(4), modifier=Modifier.double_sharp).base_index == NoteIndex(4)
+    assert Note(NoteName.d, pitch=Spn(4), modifier=Modifier.flat).base_index == NoteIndex(1)
+    assert Note(NoteName.d, pitch=Spn(4), modifier=Modifier.double_flat).base_index == NoteIndex(0)
+
+    assert Note(NoteName.e, pitch=Spn(4), modifier=None).base_index == NoteIndex(4)
+    assert Note(NoteName.e, pitch=Spn(4), modifier=Modifier.natural).base_index == NoteIndex(4)
+    assert Note(NoteName.e, pitch=Spn(4), modifier=Modifier.sharp).base_index == NoteIndex(5)
+    assert Note(NoteName.e, pitch=Spn(4), modifier=Modifier.double_sharp).base_index == NoteIndex(6)
+    assert Note(NoteName.e, pitch=Spn(4), modifier=Modifier.flat).base_index == NoteIndex(3)
+    assert Note(NoteName.e, pitch=Spn(4), modifier=Modifier.double_flat).base_index == NoteIndex(2)
+
+    assert Note(NoteName.f, pitch=Spn(4), modifier=None).base_index == NoteIndex(5)
+    assert Note(NoteName.f, pitch=Spn(4), modifier=Modifier.natural).base_index == NoteIndex(5)
+    assert Note(NoteName.f, pitch=Spn(4), modifier=Modifier.sharp).base_index == NoteIndex(6)
+    assert Note(NoteName.f, pitch=Spn(4), modifier=Modifier.double_sharp).base_index == NoteIndex(7)
+    assert Note(NoteName.f, pitch=Spn(4), modifier=Modifier.flat).base_index == NoteIndex(4)
+    assert Note(NoteName.f, pitch=Spn(4), modifier=Modifier.double_flat).base_index == NoteIndex(3)
+
+    assert Note(NoteName.g, pitch=Spn(4), modifier=None).base_index == NoteIndex(7)
+    assert Note(NoteName.g, pitch=Spn(4), modifier=Modifier.natural).base_index == NoteIndex(7)
+    assert Note(NoteName.g, pitch=Spn(4), modifier=Modifier.sharp).base_index == NoteIndex(8)
+    assert Note(NoteName.g, pitch=Spn(4), modifier=Modifier.double_sharp).base_index == NoteIndex(9)
+    assert Note(NoteName.g, pitch=Spn(4), modifier=Modifier.flat).base_index == NoteIndex(6)
+    assert Note(NoteName.g, pitch=Spn(4), modifier=Modifier.double_flat).base_index == NoteIndex(5)
+
+    assert Note(NoteName.a, pitch=Spn(4), modifier=None).base_index == NoteIndex(9)
+    assert Note(NoteName.a, pitch=Spn(4), modifier=Modifier.natural).base_index == NoteIndex(9)
+    assert Note(NoteName.a, pitch=Spn(4), modifier=Modifier.sharp).base_index == NoteIndex(10)
+    assert Note(NoteName.a, pitch=Spn(4), modifier=Modifier.double_sharp).base_index == NoteIndex(11)
+    assert Note(NoteName.a, pitch=Spn(4), modifier=Modifier.flat).base_index == NoteIndex(8)
+    assert Note(NoteName.a, pitch=Spn(4), modifier=Modifier.double_flat).base_index == NoteIndex(7)
+
+    assert Note(NoteName.b, pitch=Spn(4), modifier=None).base_index == NoteIndex(11)
+    assert Note(NoteName.b, pitch=Spn(4), modifier=Modifier.natural).base_index == NoteIndex(11)
+    assert Note(NoteName.b, pitch=Spn(4), modifier=Modifier.sharp).base_index == NoteIndex(0)
+    assert Note(NoteName.b, pitch=Spn(4), modifier=Modifier.double_sharp).base_index == NoteIndex(1)
+
+
 def test_equality():
     assert Note(NoteName.c) == Note(NoteName.c)
+    assert Note.from_str("C") == Note.from_str("C")
+    assert Note.from_str("C4") == Note.from_str("C4")
+
+    with pytest.raises(NotePitchAwarenessException):
+        assert Note.from_str("C") == Note.from_str("C4")
+
     assert Note(NoteName.c, pitch=Spn(4), modifier=Modifier.double_sharp) == Note(NoteName.d, pitch=Spn(4),)
     assert Note(NoteName.c, pitch=Spn(4), modifier=Modifier.double_flat) == Note(NoteName.b, pitch=Spn(3), modifier=Modifier.flat)
     assert Note(NoteName.e, pitch=Spn(4), modifier=Modifier.sharp) == Note(NoteName.f, pitch=Spn(4))
@@ -112,6 +175,14 @@ def test_inequality():
     assert Note(NoteName.c, pitch=Spn(2)) < Note(NoteName.c, pitch=Spn(3))
     assert Note(NoteName.c, pitch=Spn(2)) <= Note(NoteName.c, pitch=Spn(3))
     assert Note(NoteName.c, pitch=Spn(2)) <= Note(NoteName.c, pitch=Spn(2))
+
+    assert Note(NoteName.c) <= Note(NoteName.c)
+    assert Note(NoteName.c) <= Note(NoteName.d)
+    assert Note(NoteName.c) < Note(NoteName.e)
+    assert Note(NoteName.e) > Note(NoteName.d)
+
+    with pytest.raises(NotePitchAwarenessException):
+        assert Note.from_str("C") < Note.from_str("D4")
 
 
 def _get_notes_for_pitch(pitch):
@@ -137,10 +208,17 @@ def test_determine_notes_from_index():
         data += _get_notes_for_pitch(Spn(pitch))
 
     for i in range(0, 144):
-        assert data[i] == determine_notes_from_index(i)
+        assert data[i] == determine_notes_from_index(NoteIndex(i))
 
 
 def test_from_str():
+    assert Note.from_str("E") == Note(NoteName.e, pitch=None, modifier=None)
+    assert Note.from_str("E#") == Note(NoteName.e, pitch=None, modifier=Modifier.sharp)
+    assert Note.from_str("E##") == Note(NoteName.e, pitch=None, modifier=Modifier.double_sharp)
+    assert Note.from_str("E###") == Note(NoteName.e, pitch=None, modifier=Modifier.triple_sharp)
+    assert Note.from_str("Eb") == Note(NoteName.e, pitch=None, modifier=Modifier.flat)
+    assert Note.from_str("Ebb") == Note(NoteName.e, pitch=None, modifier=Modifier.double_flat)
+    assert Note.from_str("Ebbb") == Note(NoteName.e, pitch=None, modifier=Modifier.triple_flat)
     assert Note.from_str("E0") == Note(NoteName.e, pitch=Spn(0), modifier=None)
     assert Note.from_str("E#0") == Note(NoteName.e, pitch=Spn(0), modifier=Modifier.sharp)
     assert Note.from_str("E##0") == Note(NoteName.e, pitch=Spn(0), modifier=Modifier.double_sharp)

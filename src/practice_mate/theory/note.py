@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 from practice_mate.theory.fundamentals import *
 from practice_mate.theory.interval import Interval, get_note_name_for_quantity
 
-__all__ = ["Note", "CannotDetermineRelatedNoteError", "NoteRangeException"]
+__all__ = ["Note", "CannotDetermineRelatedNoteError", "NoteRangeException", "NotePitchAwarenessException"]
 
 
 NOTENAME_TO_BASE_INDEX = {
@@ -54,15 +54,21 @@ class NoteRangeException(Exception):
     pass
 
 
+class NotePitchAwarenessException(Exception):
+    pass
+
+
 class Note:
     def __init__(self, base: NoteName,
-                 pitch: Optional[Spn] = Spn(4),
-                 modifier: Optional[Modifier] = None
-                ):
+                 pitch: Optional[Spn] = None,
+                 modifier: Optional[Modifier] = None):
         self._base: NoteName = base
-        self._pitch: Spn = pitch
-        self._modifier: Modifier = modifier
-        self._index: NoteIndex = determine_note_index(self._base, self._pitch, self._modifier)
+        self._pitch: Optional[Spn] = pitch
+        self._modifier: Optional[Modifier] = modifier
+        self._index, self._base_index = determine_note_and_base_indices(
+            self._base, self._pitch or Spn(4), self._modifier)
+        if self._pitch is None:
+            self._index = None
 
     @staticmethod
     def from_str(value: str) -> "Note":
@@ -73,10 +79,10 @@ class Note:
         base = NoteName(value[0].upper())
         try:
             numerics = "".join([i for i in value if i.isnumeric()])
-            value = value[:-len(numerics)]
             pitch = Spn(int(numerics))
+            value = value[:-len(numerics)]
         except ValueError:
-            pitch = Spn(4)
+            pitch = None
 
         if len(value) > 1:
             modifier = value[1:].replace("#", Modifier.sharp.value).replace("b", Modifier.flat.value)
@@ -93,7 +99,7 @@ class Note:
         return self._base
 
     @property
-    def pitch(self) -> Spn:
+    def pitch(self) -> Optional[Spn]:
         return self._pitch
 
     @property
@@ -101,8 +107,12 @@ class Note:
         return self._modifier
 
     @property
-    def index(self) -> NoteIndex:
+    def index(self) -> Optional[NoteIndex]:
         return self._index
+
+    @property
+    def base_index(self) -> NoteIndex:
+        return self._base_index
 
     def apply(self, interval: Interval, try_quantitative_naming: bool = True) -> "Note":
         try:
@@ -120,32 +130,49 @@ class Note:
             return determine_notes_from_index(new_index)[0]
 
     def __ge__(self, other: "Note") -> bool:
-        return self.index >= other.index
+        if (self.pitch is None) ^ (other.pitch is None):
+            raise NotePitchAwarenessException(f"Cannot compare pitch-naive and pitch-aware notes {self}, {other}")
+        elif (self.pitch is None) and (other.pitch is None):
+            return self.base_index >= other.base_index
+        else:
+            return self.index >= other.index
 
     def __gt__(self, other: "Note") -> bool:
-        return self.index > other.index
+        if (self.pitch is None) ^ (other.pitch is None):
+            raise NotePitchAwarenessException(f"Cannot compare pitch-naive and pitch-aware notes {self}, {other}")
+        elif (self.pitch is None) and (other.pitch is None):
+            return self.base_index > other.base_index
+        else:
+            return self.index > other.index
 
     def __eq__(self, other: "Note") -> bool:
-        return self.index == other.index
+        if (self.pitch is None) ^ (other.pitch is None):
+            raise NotePitchAwarenessException(f"Cannot compare pitch-naive and pitch-aware notes {self}, {other}")
+        elif (self.pitch is None) and (other.pitch is None):
+            return self.base_index == other.base_index
+        else:
+            return self.index == other.index
 
     def __str__(self) -> str:
-        return f"{self._base}{self._modifier.value if self._modifier else ''}{self._pitch}"
+        _pitch = str(self.pitch) if self.pitch else ""
+        return f"{self._base}{self._modifier.value if self._modifier else ''}{_pitch}"
 
     def __repr__(self) -> str:
         return f"<{self.__class__.__name__} {str(self)}>"
 
 
-def determine_note_index(base: NoteName, pitch: Spn, modifier: Optional[Modifier] = None) -> NoteIndex:
+def determine_note_and_base_indices(base: NoteName, pitch: Spn, modifier: Optional[Modifier] = None
+                                    ) -> Tuple[NoteIndex, NoteIndex]:
     if pitch == Spn(-1) and base is NoteName.c and modifier in FLATTENING_MODIFIERS:
         raise NoteRangeException(f"Cannot go flatter than C-1")
     if pitch == Spn(10) and base is NoteName.b and modifier in SHARPENING_MODIFIERS:
         raise NoteRangeException(f"Cannot go sharper than B10")
 
-    i = deepcopy(NOTENAME_TO_BASE_INDEX[base])
-    i += (pitch + Spn(1)) * SemiTone(12)
+    base_index = deepcopy(NOTENAME_TO_BASE_INDEX[base])
     if modifier:
-        i += MODIFIER_TO_SEMITONE_OFFSET[modifier]
-    return NoteIndex(i)
+        base_index += MODIFIER_TO_SEMITONE_OFFSET[modifier]
+    note_index = base_index + (pitch + Spn(1)) * SemiTone(12)
+    return NoteIndex(note_index), NoteIndex(base_index % 12)
 
 
 def determine_notes_from_index(index: NoteIndex) -> Tuple[Note]:
