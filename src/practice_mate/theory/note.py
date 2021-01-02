@@ -77,11 +77,16 @@ class Note:
             raise ValueError("Empty string cannot be parsed")
 
         base = NoteName(value[0].upper())
-        try:
-            numerics = "".join([i for i in value if i.isnumeric()])
-            pitch = Spn(int(numerics))
-            value = value[:-len(numerics)]
-        except ValueError:
+
+        numerics = "".join([i for i in value if i.isnumeric()])
+        if len(numerics) > 0:
+            if value[-1 - len(numerics)] == "-":
+                pitch = Spn(-int(numerics))
+                value = value[:-1 - len(numerics)]
+            else:
+                pitch = Spn(int(numerics))
+                value = value[:-len(numerics)]
+        else:
             pitch = None
 
         if len(value) > 1:
@@ -114,20 +119,27 @@ class Note:
     def base_index(self) -> NoteIndex:
         return self._base_index
 
+    def get_naive(self) -> "Note":
+        return Note(base=self.base, pitch=None, modifier=self.modifier)
+
     def apply(self, interval: Interval, try_quantitative_naming: bool = True) -> "Note":
         try:
-            new_index = NoteIndex(self._index + interval.semitones)
+            if self.index is not None:
+                new_index = NoteIndex(self.index + interval.semitones)
+            else:
+                new_index = NoteIndex((self.base_index + interval.semitones) % 12)
         except ValueError as e:
             raise NoteRangeException(e)
 
-        if not try_quantitative_naming:
-            return determine_notes_from_index(new_index)[0]
+        if try_quantitative_naming:
+            try:
+                new_base = get_note_name_for_quantity(base_note=self.base, quantity=interval.quantity)
+                return determine_related_note(new_base, new_index)
+            except CannotDetermineRelatedNoteError:
+                pass
 
-        try:
-            new_base = get_note_name_for_quantity(base_note=self._base, quantity=interval.quantity)
-            return determine_related_note(new_base, new_index)
-        except CannotDetermineRelatedNoteError:
-            return determine_notes_from_index(new_index)[0]
+        note = determine_notes_from_index(new_index)[0]
+        return note.get_naive() if self.index is None else note
 
     def __ge__(self, other: "Note") -> bool:
         if (self.pitch is None) ^ (other.pitch is None):
@@ -196,6 +208,7 @@ class CannotDetermineRelatedNoteError(Exception):
 
 def determine_related_note(target_base: NoteName, index: NoteIndex) -> Note:
     for search_index in range(index - 3, index + 4, 1):
+        search_index = NoteIndex.bounded(search_index)
         notes = determine_notes_from_index(search_index)
         if len(notes) > 1:
             continue

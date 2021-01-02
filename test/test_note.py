@@ -219,6 +219,7 @@ def test_from_str():
     assert Note.from_str("Eb") == Note(NoteName.e, pitch=None, modifier=Modifier.flat)
     assert Note.from_str("Ebb") == Note(NoteName.e, pitch=None, modifier=Modifier.double_flat)
     assert Note.from_str("Ebbb") == Note(NoteName.e, pitch=None, modifier=Modifier.triple_flat)
+    assert Note.from_str("E-1") == Note(NoteName.e, pitch=Spn(-1), modifier=None)
     assert Note.from_str("E0") == Note(NoteName.e, pitch=Spn(0), modifier=None)
     assert Note.from_str("E#0") == Note(NoteName.e, pitch=Spn(0), modifier=Modifier.sharp)
     assert Note.from_str("E##0") == Note(NoteName.e, pitch=Spn(0), modifier=Modifier.double_sharp)
@@ -234,6 +235,8 @@ def test_apply():
     diminished_sixth = Interval.from_str("Diminished 6th")
     doubly_diminished_sixth = Interval.from_str("Doubly diminished 6th")
 
+    assert Note.from_str("C-1").apply(perfect_fifth) == Note.from_str("G-1")
+    assert Note.from_str("A").apply(doubly_augmented_second) == Note.from_str("B##")
     assert Note.from_str("A4").apply(doubly_augmented_second) == Note.from_str("B##4")
 
     assert Note.from_str("C4").apply(perfect_fifth) == Note.from_str("G4")
