@@ -134,7 +134,8 @@ class Note:
         if try_quantitative_naming:
             try:
                 new_base = get_note_name_for_quantity(base_note=self.base, quantity=interval.quantity)
-                return determine_related_note(new_base, new_index)
+                note = determine_related_note(new_base, new_index)
+                return note.get_naive() if self.index is None else note
             except CannotDetermineRelatedNoteError:
                 pass
 
