@@ -291,7 +291,7 @@ def name_the_note_quiz(frets: int, tuning: Tuning, surface: pygame.Surface):
 
     surface.fill(background)
     texts = [
-        f"Success Rate: {(correct/total) * 100}%",
+        f"Success Rate: {(correct/total) * 100:.2f}%",
         f"Mean Response Time: {all_mean}",
         f"Mean Resp. Time for Correct Answers: {correct_mean}",
         f"Mean Resp. Time for Wrong Answers: {wrong_mean}",
