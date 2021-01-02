@@ -228,7 +228,14 @@ def name_the_note_quiz(frets: int, tuning: Tuning, surface: pygame.Surface):
                         user_input_surface = answer_font.render(user_text_prefix + user_text, True, WHITE)
                         user_input_rectangle.size = user_input_surface.get_size()
 
-                        string, fret = random_fretboard_position(fretboard)
+                        # Ask from previously failed positions 10% of the time if there are enough failures
+                        if len(question_pool) > 5 and randint(0, 10) <= 1:
+                            index = randint(0, len(question_pool) - 1)
+                            string, fret = question_pool[index]
+                            del question_pool[index]
+                        else:
+                            string, fret = random_fretboard_position(fretboard)
+
                         text = f"String {string} at fret {fret}? "
                         text_surface = font.render(text, True, LIME)
                         text_rectangle = text_surface.get_rect()
