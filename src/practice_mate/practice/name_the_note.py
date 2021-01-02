@@ -166,7 +166,7 @@ def _name_the_note_timed(frets: int, tuning: Tuning, timeout: int, surface: pyga
         clock.tick(60)
 
 
-def name_the_note_quiz(frets: int, tuning: Tuning, surface: pygame.Surface):
+def name_the_note_quiz(frets: int, tuning: Tuning, is_pitch_aware: bool, surface: pygame.Surface):
     fretboard = Fretboard(frets=frets, tuning=tuning)
 
     total = 0
@@ -253,7 +253,16 @@ def name_the_note_quiz(frets: int, tuning: Tuning, surface: pygame.Surface):
 
                         answer_time = pygame.time.get_ticks() - answer_start_time
 
-                        if user_answer is not None and user_answer == expected_answer:
+                        is_correct = user_answer is not None
+                        if is_correct:
+                            if is_pitch_aware and user_answer.pitch is None:
+                                is_correct = False
+                            elif is_pitch_aware and user_answer.pitch is not None:
+                                is_correct &= user_answer == expected_answer
+                            else:
+                                is_correct &= user_answer.get_naive() == expected_answer.get_naive()
+
+                        if is_correct:
                             text = "Correct"
                             topleft = (380, CENTER_RECT_TOP_LEFT[1])
                             correct += 1
